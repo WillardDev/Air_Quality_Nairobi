@@ -86,73 +86,32 @@ data/nairobi_air_quality_2025.csv
 
 ### 1. Data Cleaning & Preprocessing
 
-- Parse `datetime` to a proper datetime type; extract UTC date and calendar features.
-- Drop metadata columns that carry no information (`frequency`, `network`).
-- Standardize site names into a clean `site` label and correct site coordinates using per-site representative (non-zero) latitude/longitude where coordinates are zero-filled or missing.
-- Remove or flag implausible sensor readings: pm2_5 = 0, temperature = 0, humidity = 0 for sites that otherwise report valid weather (Buruburu is treated as having missing weather, not zero weather).
-- Resolve/inspect the 317 duplicate site–day records and enforce one row per site per day.
-- Handle missing values via **site-specific imputation** (per-site median) or drop rows where the target `pm2_5` is missing.
-- Restrict analysis to sites with sufficient coverage (drop `Kenyatta University` if its 15 records prove non-representative).
-- Verify no target leakage: all features used at prediction time must be observable without the pm2_5 value.
+Clean site names, fix zero-filled/missing coordinates, flag implausible sensor readings (pm2_5, temperature, or humidity = 0), resolve duplicate site–day records, and impute remaining missing values using site-specific medians.
 
 ### 2. Exploratory Data Analysis (EDA)
 
-- **Distribution analysis:** histograms and summary statistics for pm2_5, temperature, and humidity (right-skewed PM2.5 with extreme spikes at Fire Station and Kuwinda).
-- **Site comparisons:** boxplots of pm2_5 by site to highlight the most vs. least polluted areas.
-- **Temporal analysis:** daily and monthly mean pm2_5 to reveal seasonality — higher concentrations around **June–August** (mean ≈ 30+ µg/m³) and lower around **November–December** (mean ≈ 15 µg/m³).
-- **Correlation analysis:** temperature and humidity are strongly correlated with each other (r ≈ 0.82) but only weakly with pm2_5 (r ≈ 0.05 and 0.04), signaling that nonlinear and spatio-temporal features will be needed.
-- **Missingness analysis:** map of missing/zero values across sites to decide the imputation strategy.
+Explore PM2.5 distributions, site-to-site pollution differences, monthly seasonality (spikes in Jun–Aug), and correlations between temperature, humidity, and PM2.5.
 
 ### 3. Feature Engineering & Feature Selection
 
-**Engineered features:**
-- **Temporal:** month, day of year, season (long/short rain, dry), weekend vs. weekday.
-- **Spatial:** site identifier, site mean PM2.5, site latitude/longitude.
-- **Meteorological:** raw temperature and humidity, plus lagged (t-1, t-7) and rolling (7- and 30-day) averages.
-- **Interaction terms:** temperature × humidity, and month × site for local seasonal profiles.
-
-**Selection:**
-- Use **mutual information** and **correlation thresholds** to drop redundant features (e.g., one of temperature/humidity given collinearity).
-- Prune near-constant features (low variance threshold).
-- Validate selected features by comparing RMSE with and without each candidate group (backward selection).
+Engineer temporal (month, season, day-of-year), spatial (site, coordinates), and meteorological (temperature, humidity, lagged/rolling averages) features, then select the most predictive subset using mutual information and correlation/variance thresholds.
 
 ### 4. Model Selection
 
-Candidate regression models, selected to cover linear to nonlinear/ensemble approaches:
-
-1. **Baseline:** mean predictor (site-specific mean PM2.5).
-2. **Linear:** Ridge Regression / Linear Regression (interpretable, tests linearity).
-3. **Tree ensembles:** Random Forest Regressor and **XGBoost** (capture non-linearities and interactions, strong tabular performance).
-4. **Optional:** LightGBM for comparison if runtime permits.
-
-Models are chosen based on prior evidence that tree ensembles dominate for small-meterological-tabular datasets, while linear models provide the interpretable baseline.
+Compare a gradient of models — baseline mean predictor, ridge/linear regression, and tree ensembles (Random Forest, XGBoost) — to cover interpretable linear baselines through nonlinear ensemble approaches.
 
 ### 5. Model Training
 
-- **Split strategy:** site-aware and time-aware splits (e.g., train on Jan–Sep, validate Oct–Nov, test Dec) to avoid leakage and simulate forecasting; optionally `GroupKFold` by site.
-- **Preprocessing pipeline:** one-hot encoding of site and season, scaling of numeric features.
-- **Cross-validation:** 5-fold CV for hyperparameter search.
-- **Loss:** RMSE (primary), MAE and R² reported for interpretability.
-- Train each candidate model on the tuned feature set and record CV performance before fine-tuning.
+Train each candidate model on processed features using time-aware and site-aware splits with 5-fold cross-validation, optimizing for RMSE.
 
 ### 6. Model Evaluation & Tuning
 
-- **Metrics:** RMSE, MAE, R² and MAPE on the held-out test set; report per-site errors to check generalization.
-- **Tuning:** `GridSearchCV`/`RandomizedSearchCV` (or Optuna) for XGBoost/RandomForest — n_estimators, max_depth, learning_rate, subsample, colsample_bytree.
-- **Model comparison:** prefer the model with the best **test RMSE** at a similar or lower variance across folds; guard against overfitting by tracking train–test gap.
-- **Robustness checks:** residuals vs. time and site; verify performance on sites with sparse data.
+Evaluate on held-out data using RMSE, MAE, and R² (with per-site breakdowns) and tune hyperparameters via grid/randomized search to pick the best-performing, stable model.
 
 ### 7. Error Analysis
 
-- Plot **residuals vs. predicted** and **residuals vs. month/site** to find where the model under- or over-predicts.
-- Identify failure modes: high-pollution spikes (e.g., > 100 µg/m³) are likely systematically under-predicted since they are rare and extreme.
-- Sites with very few records (e.g., Kenyatta University) will show unstable predictions — quantify and report per-site uncertainty.
-- Quantify performance when weather sensors fail (e.g., Buruburu) to check reliance on temperature/humidity.
-- Iterate on features/cleaning choices if a systematic pattern appears.
+Analyze residuals by time and site to identify systematic under-prediction of pollution spikes and underperforming sites with sparse or missing weather data.
 
 ### 8. Model Explainability
 
-- **SHAP analysis** on the final model (XGBoost/RandomForest) to rank global feature importance and direction of effect.
-- **Per-site SHAP** to show how time-of-year, temperature, and site identity drive predictions in different neighborhoods.
-- **Partial dependence plots** for the strongest features (e.g., month, site mean PM2.5).
-- Summarize actionable insights: which sites have systematic over/under-prediction, which features dominate, and whether weather data actually helps or whether site/calendar features alone suffice.
+Use SHAP and partial dependence plots to rank feature importance, show how site identity and time of year drive predictions, and provide actionable insight.
