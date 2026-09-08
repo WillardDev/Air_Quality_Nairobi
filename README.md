@@ -6,6 +6,22 @@ Air pollution is a major public health concern in Nairobi, with fine particulate
 
 Despite the availability of this data, there is no robust model to estimate PM2.5 concentrations at sites where measurements are missing. The goal of this project is to build a **predictive model that estimates daily PM2.5 levels across Nairobi's monitoring sites** using meteorological and spatio-temporal features — enabling better coverage of areas with incomplete data and providing a foundation for air quality forecasting.
 
+## Research Questions
+
+1. What are the spatial and temporal patterns of PM2.5 pollution across Nairobi's monitoring sites?
+2. How do temperature and humidity relate to PM2.5 concentrations?
+3. Can we accurately predict daily PM2.5 levels using meteorological and spatio-temporal features?
+4. Which monitoring sites experience the highest pollution, and what factors drive these differences?
+5. How does PM2.5 concentration vary across seasons in Nairobi?
+
+## Project Objectives
+
+1. To analyze the distribution and variation of PM2.5 concentrations across different sites in Nairobi.
+2. To explore the relationship between meteorological variables (temperature, humidity) and air quality.
+3. To build a predictive regression model for estimating daily PM2.5 levels using available features.
+4. To evaluate model performance and identify the most important features influencing air quality predictions.
+5. To provide actionable insights for air quality monitoring and public health recommendations.
+
 ## Project Overview
 
 This project analyzes a full year (2025) of daily air quality and meteorological readings collected by the AirQo sensor network across 10 sites in Nairobi, Kenya. It follows a full machine learning pipeline:
