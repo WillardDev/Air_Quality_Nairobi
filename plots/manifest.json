@@ -1,0 +1,432 @@
+{
+ "images": [
+  {
+   "file": "fcec9e30.png",
+   "title": "1.9 Detect outliers",
+   "insight": "pm2_5 and pm10 are right-skewed with long upper tails, while temperature and humidity are roughly bell-shaped. The IQR outlier removal will trim only the extreme pollution spikes, preserving the informative mid-range.",
+   "section": "1. Data Cleaning",
+   "cell": "fcec9e30"
+  },
+  {
+   "file": "1ea16589.png",
+   "title": "1.11 Verify outliers were removed",
+   "insight": "The boxplots after the IQR cut confirm the extreme spikes are gone while the core and whiskers of each distribution stay intact. This protects the models from a handful of implausible readings without distorting normal variability.",
+   "section": "1. Data Cleaning",
+   "cell": "1ea16589"
+  },
+  {
+   "file": "f41f13cf.png",
+   "title": "2.4 Feature distributions before scaling",
+   "insight": "The pairplot before scaling shows PM2.5's right skew and its near-linear relationship with PM10. Distributions and scales differ enough across features that standardization is warranted before training.",
+   "section": "2. Data Preprocessing",
+   "cell": "f41f13cf"
+  },
+  {
+   "file": "eda_site_coverage.png",
+   "title": "3.1 Site coverage and sample size per site",
+   "insight": "Monitoring coverage is uneven \u2014 a few sites report almost daily while others leave long gaps. This imbalance motivates the project: sites with thin coverage are exactly where a predictive model adds value.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "eda_site_coverage"
+  },
+  {
+   "file": "39877be1.png",
+   "title": "3.2 Strength/direction of relationships, guides feature selection",
+   "insight": "PM2.5 correlates strongly with PM10 (r \u2248 0.97) but only weakly with temperature (r \u2248 \u22120.22) and humidity. PM10 therefore belongs in the feature set, while weather alone cannot explain most of the variation.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "39877be1"
+  },
+  {
+   "file": "3d96bbad.png",
+   "title": "3.3 Shape of each distribution, skewness, whether pm2_5 is right-skewed (typical for pollution data)",
+   "insight": "PM2.5 is right-skewed with occasional tall spikes, temperature is near-normal, and humidity is left-skewed toward high values. These shapes justify log/robust handling in some features and scale-insensitive tree models later.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "3d96bbad"
+  },
+  {
+   "file": "pm_pm_plot.png",
+   "title": "3.4 Relationship between PM2.5 and PM10",
+   "insight": "PM2.5 and PM10 move almost in lockstep (r \u2248 0.97), so PM10 is by far the strongest single predictor available. Their near-perfect co-movement reflects shared emission sources (combustion, dust).",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "pm_pm_plot"
+  },
+  {
+   "file": "weekend_plot.png",
+   "title": "3.5 Weekday vs Weekend pollution",
+   "insight": "Weekdays and weekends look nearly identical (traffic is heavy everywhere in Nairobi daily), so a weekend flag adds little signal on its own. The model still keeps it as a minor feature for calendar completeness.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "weekend_plot"
+  },
+  {
+   "file": "2168cff4.png",
+   "title": "3.6 Which locations are most polluted",
+   "insight": "The most polluted sites sit near major road corridors, where traffic emissions concentrate. The spread between the cleanest and dirtiest sites is modest, though, hinting that site identity explains less than history and weather.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "2168cff4"
+  },
+  {
+   "file": "27b2f9d7.png",
+   "title": "3.7 Geographic hotspots across Nairobi",
+   "insight": "Pollution is spread city-wide rather than concentrated in a single hotspot, so site identity adds limited signal once other features are known. The choropleth still reveals clusters around industrial corridors.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "27b2f9d7"
+  },
+  {
+   "file": "a2be3f89.png",
+   "title": "3.8 Whether heat correlates with pollution levels",
+   "insight": "Hotter days tend to have lower PM2.5 (r \u2248 \u22120.22) \u2014 pollution is driven more by the cooler, stable conditions of the cold dry season. This is the strongest pure-weather driver and matches Nairobi's Jun\u2013Aug peak.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "a2be3f89"
+  },
+  {
+   "file": "90ec9e9f.png",
+   "title": "3.9 Whether humidity correlates with pollution levels",
+   "insight": "Humidity shows almost no linear link to PM2.5 (r \u2248 \u22120.03), so its value is indirect \u2014 wet-season dynamics enter the model through seasonal features instead. Keeping it costs little and preserves interactions for tree models.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "90ec9e9f"
+  },
+  {
+   "file": "2873277e.png",
+   "title": "3.10 Seasonal patterns: PM2.5 distribution by month",
+   "insight": "PM2.5 climbs through the year and peaks in the June\u2013August window \u2014 a clear seasonal signature. The boxplot's whiskers widen in those months too, meaning not just higher means but more variable (worse) days.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "2873277e"
+  },
+  {
+   "file": "monthly_trend.png",
+   "title": "3.10.1 Monthly average PM2.5 trend",
+   "insight": "The month-on-month rise confirms PM2.5 peaks mid-year and eases toward December. Season is therefore engineered as sin/cos features so the model can exploit the full yearly cycle, not just a month id.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "monthly_trend"
+  },
+  {
+   "file": "485637a2.png",
+   "title": "3.11.1 Apply categorization to the dataset",
+   "insight": "The vast majority of readings fall into the Moderate band, so the classifier starts with a heavy class imbalance (Moderate \u2248 12,755 vs ~1,250 each for Good and Unhealthy). Accuracy alone would hide failures on the rare classes.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "485637a2"
+  },
+  {
+   "file": "362e080b.png",
+   "title": "3.12.1 Visualize class balance after SMOTE",
+   "insight": "After SMOTE every class is represented by 12,755 training rows instead of being dominated by Moderate. A classifier trained on these balanced data can now learn Good/Unhealthy patterns instead of defaulting to the majority.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "362e080b"
+  },
+  {
+   "file": "tune_ridge.png",
+   "title": "5.3.2.1 Tune Ridge alpha (GridSearchCV)",
+   "insight": "The validation curve shows a wide plateau, so the exact alpha matters little once regularization is in effect. The tuned alpha was still stored for the final Ridge model.",
+   "section": "5. Model Selection",
+   "cell": "tune_ridge"
+  },
+  {
+   "file": "reg_viz.png",
+   "title": "5.3.6 Regression model comparison chart",
+   "insight": "Random Forest wins across all three panels \u2014 lower RMSE/MAE and the highest R\u00b2 of the four regressors. The linear models cluster together, and the polynomial adds a marginal step, so the winner's lead is decisive.",
+   "section": "5. Model Selection",
+   "cell": "reg_viz"
+  },
+  {
+   "file": "clf_accuracy_f1_viz.png",
+   "title": "5.4.4 Accuracy vs Macro-F1 (bar chart)",
+   "insight": "Random Forest leads on both accuracy and macro-F1, so it earns the classification win on both metrics. Logistic Regression's lower macro-F1 signals that its accuracy is inflated by the majority class.",
+   "section": "5. Model Selection",
+   "cell": "clf_accuracy_f1_viz"
+  },
+  {
+   "file": "clf_perclass_viz.png",
+   "title": "5.4.5 Per-class precision/recall/F1 (grouped bars)",
+   "insight": "The gap is widest on Good and Unhealthy: Logistic Regression lags recall there while Random Forest holds up. These are the classes that matter for health alerts, so the difference is consequential.",
+   "section": "5. Model Selection",
+   "cell": "clf_perclass_viz"
+  },
+  {
+   "file": "clf_roc_viz.png",
+   "title": "5.4.6 ROC curves (one-vs-rest)",
+   "insight": "Random Forest's one-vs-rest curves dominate Logistic Regression's on every class, and the advantage is biggest at low false-positive rates. That means RF flags true pollution episodes earlier with fewer false alarms.",
+   "section": "5. Model Selection",
+   "cell": "clf_roc_viz"
+  },
+  {
+   "file": "smote_viz.png",
+   "title": "5.5.1 Class counts before vs after SMOTE (bar chart)",
+   "insight": "The before/after bars make the rebalancing obvious \u2014 the classifier can no longer just predict Moderate everywhere. The balanced class counts are the direct cause of the recall gains on Good and Unhealthy.",
+   "section": "5. Model Selection",
+   "cell": "smote_viz"
+  },
+  {
+   "file": "learning_curve_reg.png",
+   "title": "6.1 Learning curves (train vs cross-validated score by training size)",
+   "insight": "The two curves are close and still rising \u2014 a little more data (or more sites) would buy further accuracy. The absence of a wide train\u2013CV gap also means the regressor is not overfitting at current sizes.",
+   "section": "6. Error Analysis",
+   "cell": "learning_curve_reg"
+  },
+  {
+   "file": "learning_curve_clf.png",
+   "title": "6.1 Learning curves (train vs cross-validated score by training size)",
+   "insight": "The gap is small and flat past ~60% of the data, signaling the classifier has nearly converged. Adding data yields little here \u2014 the ceiling is set by feature quality and intrinsic noise, not sample size.",
+   "section": "6. Error Analysis",
+   "cell": "learning_curve_clf"
+  },
+  {
+   "file": "reg_diag.png",
+   "title": "6.2 Regression diagnostics \u2014 actual vs predicted, residuals",
+   "insight": "Residuals spread widens at higher PM2.5, i.e., the model under-predicts the heaviest pollution days. The actual-vs-predicted scatter hugs the diagonal for typical days while the tail drifts below it.",
+   "section": "6. Error Analysis",
+   "cell": "reg_diag"
+  },
+  {
+   "file": "clf_diag.png",
+   "title": "6.3 Classification diagnostics \u2014 confusion matrices",
+   "insight": "SMOTE moves errors off the rare classes: false negatives drop for Good and Unhealthy with no big loss on Moderate. The confusion matrices show the balanced model trades a few Moderate misses for far fewer critical ones.",
+   "section": "6. Error Analysis",
+   "cell": "clf_diag"
+  },
+  {
+   "file": "feat_imp.png",
+   "title": "6.4 Feature importance (both winning Random Forest models)",
+   "insight": "The same trio \u2014 pm10, the 7-day mean, and yesterday's PM2.5 \u2014 dominates both tasks, so lagged history is the backbone of both models. Temperature and month features trail, confirming seasonality in second place.",
+   "section": "6. Error Analysis",
+   "cell": "feat_imp"
+  },
+  {
+   "file": "perm_imp_reg.png",
+   "title": "7.1 Permutation importance (both winning models)",
+   "insight": "Shuffling pm10 and the 7-day PM2.5 mean costs the most R\u00b2, matching the tree-based importance and confirming a history-first view. Weather and site features drop only a few points when permuted.",
+   "section": "7. Model Explainability",
+   "cell": "perm_imp_reg"
+  },
+  {
+   "file": "perm_imp_clf.png",
+   "title": "7.1 Permutation importance (both winning models)",
+   "insight": "The classifier also leans hardest on physical PM readings rather than weather or site code, confirming history-first reasoning. The permutation ranking is reassuringly consistent with the feature-importance analysis.",
+   "section": "7. Model Explainability",
+   "cell": "perm_imp_clf"
+  },
+  {
+   "file": "pdp_reg.png",
+   "title": "7.2 Partial dependence plots (top features)",
+   "insight": "Every top-feature curve rises monotonically \u2014 more PM10, a longer high streak, or warmer 7-day temperatures all push predicted PM2.5 up. The curves are smooth with modest slopes, indicating stable, interpretable responses.",
+   "section": "7. Model Explainability",
+   "cell": "pdp_reg"
+  }
+ ],
+ "texts": [
+  {
+   "title": "1.1 Inspect the DataFrame",
+   "insight": "Six columns are float, six are string; the datetimes arrive as text and must be parsed. Sensor columns (latitude, longitude, temperature, humidity, pm2_5, pm10) are float64, which later keeps imputation and scaling straightforward.",
+   "section": "1. Data Cleaning",
+   "cell": "599e12e8"
+  },
+  {
+   "title": "1.2 Check for missing values",
+   "insight": "Missing values are concentrated in the sensor-read columns (573\u2013633 cells), not in site or time metadata. With counts that small relative to 16,374 rows, straightforward imputation is safe.",
+   "section": "1. Data Cleaning",
+   "cell": "4e132d9d"
+  },
+  {
+   "title": "1.3 Separate numerical and categorical columns",
+   "insight": "The column split is clean: all 6 numeric columns are candidate features, while of the categoricals only site_name carries predictive information \u2014 frequency, network, site_id, and device_name are administrative labels.",
+   "section": "1. Data Cleaning",
+   "cell": "9431125a"
+  },
+  {
+   "title": "1.4 Impute missing values",
+   "insight": "Mean imputation fills the gaps without changing the row count, letting every row contribute to training. The imputed means sit within plausible ranges, so no synthetic extremes are injected.",
+   "section": "1. Data Cleaning",
+   "cell": "4ba10433"
+  },
+  {
+   "title": "1.5 Replace zero sensor readings",
+   "insight": "Zero-valued temperatures/humidities were sensor failures rather than real readings (0\u00b0C or 0% humidity is implausible in Nairobi). Replacing them with site-specific medians removes these spikes while keeping the seasonal profile intact.",
+   "section": "1. Data Cleaning",
+   "cell": "zero_impute_01"
+  },
+  {
+   "title": "1.6 Check for duplicates",
+   "insight": "Zero duplicate rows means each site-day appears exactly once in the raw data, so no rows were lost to de-duplication and the aggregated daily signal is preserved.",
+   "section": "1. Data Cleaning",
+   "cell": "eceb253c"
+  },
+  {
+   "title": "1.7 Convert data types",
+   "insight": "After parsing, datetime becomes datetime64[us, UTC] \u2014 enabling month, day-of-week, and weekend feature extraction \u2014 while categorical strings are normalized to lowercase for consistent encoding.",
+   "section": "1. Data Cleaning",
+   "cell": "a5ef5f3e"
+  },
+  {
+   "title": "1.8 Drop constant columns",
+   "insight": "frequency, network, site_id, and device_name are constant or redundant (1 unique value each), so they carry no signal and were dropped. site_name keeps 74 distinct levels and is the only meaningful categorical.",
+   "section": "1. Data Cleaning",
+   "cell": "71669364"
+  },
+  {
+   "title": "2.1 Inspect categorical variables",
+   "insight": "site_name is the only categorical feature that matters; its 74 levels are the monitoring sites across Nairobi. The site labels expose meaningful naming differences, which we keep rather than collapsing.",
+   "section": "2. Data Preprocessing",
+   "cell": "dbc5318f"
+  },
+  {
+   "title": "2.2 Split the data into train and test",
+   "insight": "The 80/20 split holds out ~3,000 site-days for evaluation, so the reported metrics reflect true generalization. Keeping a fixed random_state makes every model comparison reproducible.",
+   "section": "2. Data Preprocessing",
+   "cell": "8632fcee"
+  },
+  {
+   "title": "2.3 One-hot encode site_name (train/test separately)",
+   "insight": "One-hot encoding expands site_name to 73 indicator columns on the train set; the test set is reindexed to match so no information leaks between folds. This early encoding is later replaced by a more compact LabelEncoder (site_encoded).",
+   "section": "2. Data Preprocessing",
+   "cell": "9e7e206a"
+  },
+  {
+   "title": "3.0 Summary statistics",
+   "insight": "A typical Nairobi day reads ~22.7 \u00b5g/m\u00b3 of PM2.5, right at the boundary between Good (\u226412) and Moderate (\u226435.4). The spread is large (std \u2248 10.5), meaning many days reach into Unhealthy territory.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "eda_summary_stats"
+  },
+  {
+   "title": "3.12 Handling class imbalance with SMOTE",
+   "insight": "Oversampling rebalances the training classes to 12,755 each so the minority classes are no longer drowned out. SMOTE is applied to the training set only, keeping the test set a faithful measure of real-world performance.",
+   "section": "3. Exploratory Data Analysis",
+   "cell": "smote_balancing"
+  },
+  {
+   "title": "4.1 Datetime decomposition",
+   "insight": "Decomposing the date exposes day-of-week and weekend signals that the raw datetime string hides. These calendar features feed the model's seasonality component alongside temperature.",
+   "section": "4. Feature Engineering & Selection",
+   "cell": "ebd8eb36"
+  },
+  {
+   "title": "4.1.1 Cyclical encoding of date features",
+   "insight": "Sin/cos encoding keeps month and day-of-week cyclic distances meaningful rather than assigning arbitrary order (e.g., December vs January). This lets the model treat seasonal proximity as similar.",
+   "section": "4. Feature Engineering & Selection",
+   "cell": "a6b9e5a8"
+  },
+  {
+   "title": "4.2 Site encoding",
+   "insight": "A numeric site label lets the model treat location as a feature while keeping the input compact compared with one-hot encoding. The 74 codes are assigned by rarity (LabelEncoder order), which is arbitrary but harmless for trees.",
+   "section": "4. Feature Engineering & Selection",
+   "cell": "site_encoding"
+  },
+  {
+   "title": "4.3 Lagged & rolling features",
+   "insight": "Yesterday's PM2.5 and the 7-day mean are strong predictors, so historical readings must enter the model. Rolling features were computed per site to avoid mixing one station's history with another's.",
+   "section": "4. Feature Engineering & Selection",
+   "cell": "lag_features"
+  },
+  {
+   "title": "4.4 Feature selection",
+   "insight": "pm10, pm2_5_roll7, and pm2_5_lag1 dominate the correlation ranking \u2014 the first three features is the effective core. month_cos (\u2248 \u22120.51) confirms seasonality is the strongest exogenous signal.",
+   "section": "4. Feature Engineering & Selection",
+   "cell": "feature_selection"
+  },
+  {
+   "title": "5.1 Data split (regression + classification targets)",
+   "insight": "Both tasks share the same 14-feature matrix, but the classification split is stratified so rare classes keep their proportions in train and test. The regression split is plain 80/20; both use random_state=42.",
+   "section": "5. Model Selection",
+   "cell": "data_split"
+  },
+  {
+   "title": "5.2 Feature scaling",
+   "insight": "Standardizing features to mean 0 / std 1 keeps linear models stable and helps regularization behave consistently. Tree models are unaffected by the scaling but still train on the same transformed matrix for a fair comparison.",
+   "section": "5. Model Selection",
+   "cell": "scaling"
+  },
+  {
+   "title": "5.3.1 Linear Regression",
+   "insight": "Linear Regression explains ~93% of variance but leaves a bias at the highest PM2.5 values \u2014 it systematically under-predicts the most polluted days. Simple and interpretable, it is outclassed on the tail.",
+   "section": "5. Model Selection",
+   "cell": "reg_linear"
+  },
+  {
+   "title": "5.3.2.1 Tune Ridge alpha (GridSearchCV)",
+   "insight": "Ridge matches Linear Regression almost exactly \u2014 the coefficient estimates are already stable, so added L2 pressure barely moves them. This confirms the linear baselines sit on an easy, smooth error surface.",
+   "section": "5. Model Selection",
+   "cell": "reg_ridge"
+  },
+  {
+   "title": "5.3.3.1 Tune Random Forest Regressor (GridSearchCV)",
+   "insight": "Tuning highlights that tree depth and feature subsampling matter more than tree count beyond ~200. A shallower forest (max_depth=20) with 75% feature sampling generalizes better than an overgrown one.",
+   "section": "5. Model Selection",
+   "cell": "tune_rfr"
+  },
+  {
+   "title": "5.3.3.1 Tune Random Forest Regressor (GridSearchCV)",
+   "insight": "The Random Forest narrows the error gap noticeably, beating the linear baselines on RMSE while pushing R\u00b2 toward 0.95. It captures the nonlinear interactions (site \u00d7 season \u00d7 history) that a hyperplane cannot.",
+   "section": "5. Model Selection",
+   "cell": "reg_rf"
+  },
+  {
+   "title": "5.3.4 Polynomial Regression (degree 2)",
+   "insight": "Adding an interaction/quadratic layer helps only slightly \u2014 most of the gain over linear models comes from the lagged features, not from polynomial flexibility. The pipeline approach also hits scaling limits at degree 2.",
+   "section": "5. Model Selection",
+   "cell": "reg_poly"
+  },
+  {
+   "title": "5.3.5 Regression models summary & best model",
+   "insight": "Random Forest wins on every metric; the gap over the linear models confirms the relationship is fundamentally nonlinear. It earns the 'best regressor' slot with R\u00b2 \u2248 0.95, RMSE \u2248 1.97, MAE \u2248 1.32.",
+   "section": "5. Model Selection",
+   "cell": "reg_summary"
+  },
+  {
+   "title": "5.4 Classification models comparison",
+   "insight": "Mapping Good\u21920, Moderate\u21921, Unhealthy\u21922 gives the classifiers a clean numeric target for training while keeping the original labels for reporting. The same encoder is reused across experiments.",
+   "section": "5. Model Selection",
+   "cell": "clf_label_encode"
+  },
+  {
+   "title": "5.4.1.1 Tune Logistic Regression (C)",
+   "insight": "Optimal C sits away from the extremes, showing the classifier benefits from some regularization. The best CV accuracy reflects tuning on the balanced objective rather than raw proportions.",
+   "section": "5. Model Selection",
+   "cell": "tune_logreg"
+  },
+  {
+   "title": "5.4.1.1 Tune Logistic Regression (C)",
+   "insight": "Logistic Regression handles the dominant Moderate class well but struggles to separate the rare classes \u2014 its linear boundaries cannot carve out the small Good/Unhealthy regions. Overall accuracy is decent, but recall on minorities suffers.",
+   "section": "5. Model Selection",
+   "cell": "clf_logreg"
+  },
+  {
+   "title": "5.4.2.1 Tune Random Forest Classifier (GridSearchCV)",
+   "insight": "The tuned Random Forest is the classification winner, improving recall where Logistic Regression is weakest. Balanced class weights let the forest focus on rare classes without explicit oversampling.",
+   "section": "5. Model Selection",
+   "cell": "tune_rfc"
+  },
+  {
+   "title": "5.4.2.1 Tune Random Forest Classifier (GridSearchCV)",
+   "insight": "Random Forest recovers the rare classes better than Logistic Regression without losing accuracy on Moderate. Non-linear boundaries plus class weighting make it the stronger classifier overall.",
+   "section": "5. Model Selection",
+   "cell": "clf_rf"
+  },
+  {
+   "title": "5.4.3 Classification models summary & best model",
+   "insight": "Random Forest again beats Logistic Regression, mostly by recovering the rare classes while holding ~92% accuracy and macro-F1 \u2248 0.84. Since the task is class-weighted (rare categories matter most), the RF win is the right one.",
+   "section": "5. Model Selection",
+   "cell": "clf_summary"
+  },
+  {
+   "title": "5.5 Classification with SMOTE-balanced training data",
+   "insight": "Re-training on SMOTE data lifts the minority-class recall while holding ~92% overall accuracy. The balanced training set also makes precision more uniform across all three categories.",
+   "section": "5. Model Selection",
+   "cell": "smote_train"
+  },
+  {
+   "title": "6.3.1 False positives & false negatives analysis",
+   "insight": "The miss rate is highest for the Unhealthy class \u2014 those are the days an air-quality alert would most want to catch. False negatives cluster on transition days (Good\u2192Moderate, Moderate\u2192Unhealthy) where readings sit near a threshold.",
+   "section": "6. Error Analysis",
+   "cell": "fpfn_analysis"
+  },
+  {
+   "title": "Air Quality in Nairobi \u2014 PM2.5 Prediction",
+   "insight": "The raw file lands as 16,374 rows x 12 columns \u2014 one row per site per day, covering 74 AirQo sites for a full year (2025). That volume gives roughly 14 months of site-days to learn from once missing readings are handled.",
+   "section": "Start",
+   "cell": "14213e7b"
+  },
+  {
+   "title": "Reducing FP / FN \u2014 decision-threshold tuning",
+   "insight": "Threshold tuning notably cuts false negatives on the rare classes, at the cost of slightly more false positives. This trade-off is worthwhile when the user prefers missing fewer pollution events over fewer warnings.",
+   "section": "Start",
+   "cell": "fpfn_reduce"
+  }
+ ]
+}
