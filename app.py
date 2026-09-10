@@ -87,37 +87,62 @@ def probability_bars(classes, proba):
     return fig
 
 
+def section_entries(section_number):
+    """Figures + textual insights for a top-level section, in notebook order."""
+    manifest = load_viz_manifest()
+    if not manifest:
+        return []
+    raw = manifest if isinstance(manifest, dict) else {}
+    images = raw.get("images", [])
+    texts = raw.get("texts", [])
+    merged = []
+    for v in images:
+        merged.append({"kind": "figure", "file": v["file"], "title": v["title"],
+                       "insight": v.get("insight", ""), "order": v.get("order", 0),
+                       "cell": v.get("file", "")})
+    for v in texts:
+        merged.append({"kind": "text", "file": None, "title": v["title"],
+                       "insight": v.get("insight", ""), "order": v.get("order", 0),
+                       "cell": v.get("title", "")})
+    merged.sort(key=lambda e: (e["order"], e["cell"]))
+    return [e for e in merged if str(e.get("order", ())) == "" or True]
+
+
 def render_section_viz(section_number):
-    """Show every notebook figure belonging to top-level section `section_number`."""
+    """Render figures with their insight directly below, in notebook order."""
     manifest = load_viz_manifest()
     if not manifest:
         st.warning("No `plots/manifest.json` found — visualizations are unavailable.")
         return
-    images = manifest.get("images", []) if isinstance(manifest, dict) else manifest
-    entries = [v for v in images if v["section"].startswith(f"{section_number}. ")]
-    if not entries:
-        st.info(f"No saved figures for this section.")
+    raw = manifest if isinstance(manifest, dict) else {}
+    images = raw.get("images", []) or []
+    texts = raw.get("texts", []) or []
+    merged = []
+    for v in images:
+        if v.get("section_num") == section_number:
+            merged.append({"kind": "figure", "file": v["file"], "title": v["title"],
+                           "insight": v.get("insight", ""), "order": v.get("order", 0)})
+    for v in texts:
+        if v.get("section_num") == section_number:
+            merged.append({"kind": "text", "file": None, "title": v["title"],
+                           "insight": v.get("insight", ""), "order": v.get("order", 0)})
+    merged.sort(key=lambda e: (tuple(e["order"]) if isinstance(e["order"], list) else (e["order"],),
+                               e["kind"] != "figure" and 1 or 0))
+    if not merged:
+        st.info("No saved figures or insights for this section.")
         return
-    for v in entries:
-        st.markdown(f"##### {v['title']}")
-        st.image(os.path.join(PLOTS_DIR, v["file"]))
-        if v.get("insight"):
-            st.markdown(f"💡 {v['insight']}")
+    last_title = None
+    for e in merged:
+        if e["title"] != last_title:
+            st.markdown(f"##### {e['title']}")
+            last_title = e["title"]
+        if e["kind"] == "figure":
+            st.image(os.path.join(PLOTS_DIR, e["file"]))
+            if e["insight"]:
+                st.markdown(f"💡 {e['insight']}")
+        elif e["insight"]:
+            st.markdown(f"📌 {e['insight']}")
         st.divider()
-
-
-def render_section_insights(section_number):
-    """Show the notebook's textual (figures-independent) insights for this section."""
-    manifest = load_viz_manifest()
-    if not manifest:
-        return
-    texts = manifest.get("texts", []) if isinstance(manifest, dict) else []
-    entries = [v for v in texts if v["section"].startswith(f"{section_number}. ")]
-    if not entries:
-        return
-    with st.expander(f"📝 Key insights from this section ({len(entries)})"):
-        for v in entries:
-            st.markdown(f"- **{v['title']}** — {v['insight']}")
 
 
 st.set_page_config(page_title="Nairobi Air Quality — PM2.5 Prediction", layout="wide")
@@ -236,8 +261,6 @@ with tabs[1]:
     st.markdown("### Before / after")
     render_section_viz(1)
     render_section_viz(2)
-    render_section_insights(1)
-    render_section_insights(2)
 
 # ---------------------------------------------------------------------------
 # Tab 2 — Exploratory Data Analysis
@@ -260,7 +283,6 @@ with tabs[2]:
         st.markdown("- Class imbalance: 87% of days are `Moderate`")
 
     render_section_viz(3)
-    render_section_insights(3)
 
 # ---------------------------------------------------------------------------
 # Tab 3 — Feature Engineering & Selection
@@ -292,6 +314,9 @@ with tabs[3]:
         "1-day and 7-day lagged/rolling PM2.5 plus rolling temperature capture "
         "recent history. `site_encoded` (LabelEncoder) carries site identity."
     )
+
+    render_section_viz(4)
+
     st.markdown("### What drives predictions?")
     left, right = st.columns(2)
     with left:
@@ -309,7 +334,6 @@ with tabs[3]:
             "**Space matters less** once meteorology and history are known."
         )
 
-    render_section_insights(4)
 
 # ---------------------------------------------------------------------------
 # Tab 4 — Model Selection
@@ -346,7 +370,6 @@ with tabs[4]:
         st.markdown(f"- {item}")
 
     render_section_viz(5)
-    render_section_insights(5)
 
 # ---------------------------------------------------------------------------
 # Tab 5 — Error Analysis
@@ -359,7 +382,6 @@ with tabs[5]:
         "threshold tuning), and feature importance."
     )
     render_section_viz(6)
-    render_section_insights(6)
 
 # ---------------------------------------------------------------------------
 # Tab 6 — Model Explainability
