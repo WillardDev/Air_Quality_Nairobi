@@ -24,7 +24,7 @@ Despite the availability of this data, there is no robust model to estimate PM2.
 
 ## Project Overview
 
-This project analyzes a full year (2025) of daily air quality and meteorological readings collected by the AirQo sensor network across 10 sites in Nairobi, Kenya. It follows a full machine learning pipeline:
+This project analyzes a full year (2025) of daily air quality and meteorological readings collected by the AirQo sensor network across 74 sites in Nairobi, Kenya. It follows a full machine learning pipeline:
 
 1. **Data ingestion** — load the raw CSV from `data/`.
 2. **Data cleaning & preprocessing** — handle missing values, zero-filled sensor readings, coordinate inconsistencies, and incomplete temporal coverage.
@@ -50,14 +50,14 @@ The output of the pipeline is a validated PM2.5 prediction model plus supporting
 The dataset comes from the **AirQo** low-cost air quality monitoring network in Nairobi, Kenya. It is stored as a single CSV file:
 
 ```
-data/nairobi_air_quality_2025.csv
+data/air-quality-data-combined.csv
 ```
 
 ## Data Structure
 
 | Column | Type | Description |
 | --- | --- | --- |
-| `site_name` | object | Name of the monitoring site (e.g., "Fire Station, Nairobi") |
+| `site_name` | object | Name of the monitoring site (e.g., "Athi, Nairobi") |
 | `datetime` | datetime | Observation date (daily, UTC), 2025-01-01 to 2025-12-31 |
 | `frequency` | object | Aggregation frequency of the reading (`daily`) |
 | `network` | object | Sensor network that produced the reading (`airqo`) |
@@ -66,37 +66,26 @@ data/nairobi_air_quality_2025.csv
 | `temperature` | float | Air temperature in °C |
 | `humidity` | float | Relative humidity in % |
 | `pm2_5` | float | Fine particulate matter concentration (µg/m³) — **target variable** |
+| `pm10` | float | Coarse particulate matter concentration (µg/m³) |
+| `site_id` | object | Unique identifier for the monitoring site |
+| `device_name` | object | Device identifier (e.g., "airqo_g5300") |
 
 **Dataset profile (post-load):**
 
-- **2,799 rows** × **9 columns**, one row per site per day.
-- Covers the **full year 2025 (365 days)** across **10 sites**.
+- **16,374 rows** × **12 columns**, one row per site per day.
+- Covers the **full year 2025 (365 days)** across **74 sites**.
 - `frequency` is constant (`daily`) and `network` is constant (`airqo`) — both are metadata and dropped from modeling.
-- Active sites per day ranges from **4 to 10** (mean ≈ 7.7), i.e., **coverage is uneven**.
+- Active sites per day varies significantly, i.e., **coverage is uneven**.
 
-**Monitoring sites & sample size:**
+**Target variable (PM2.5):** mean ≈ 22.7 µg/m³, std ≈ 10.7, range 0 – 136 µg/m³.
 
-| Site | Records |
-| --- | --- |
-| Fire Station, Nairobi | 611 |
-| Athi, Nairobi | 365 |
-| Buruburu, Makadara, Nairobi | 365 |
-| Donholm, Embakasi East, Nairobi | 334 |
-| Komarock Nairobi, Kenya | 334 |
-| Kuwinda Lang'ata Road | 235 |
-| Birongo Square, Nairobi West | 184 |
-| Drumvale Drive, Kamulu | 184 |
-| Kiamaiko | 172 |
-| Kenyatta University, Nairobi | 15 |
-
-**Target variable (PM2.5):** mean ≈ 23.5 µg/m³, std ≈ 10.8, range 0 – 120 µg/m³. `Fire Station` is the most polluted site (mean ≈ 29.1 µg/m³) and `Athi` / `Drumvale Drive` the cleanest (mean ≈ 19.7 µg/m³).
+**Additional variable (PM10):** mean ≈ 30.3 µg/m³, std ≈ 20.2, range 0 – 402 µg/m³ (available for secondary analysis).
 
 **Known data-quality issues (discovered during cleaning):**
-- Missing values: latitude/longitude (43), temperature (45), humidity (102), pm2_5 (43).
-- ~1,126 rows (40%) have zero-filled coordinates (sensor did not report location).
-- `Buruburu` has temperature/humidity effectively zero across the year (sensor not recording weather).
-- 6 rows with pm2_5 = 0.0 (suspected sensor failures).
-- 317 duplicate site–day pairs (multiple readings for the same site on the same day) and/or sites reporting more than 365 records, indicating inconsistent ingestion.
+- Missing values: latitude/longitude (573), temperature (573), humidity (633), pm2_5 (573), pm10 (574).
+- Zero-filled coordinates present (sensor did not report location).
+- Zero values in temperature/humidity (sensor not recording weather).
+- Rows with pm2_5 = 0.0 (suspected sensor failures).
 
 ## Methodology
 
