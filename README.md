@@ -87,6 +87,85 @@ data/air-quality-data-combined.csv
 - Zero values in temperature/humidity (sensor not recording weather).
 - Rows with pm2_5 = 0.0 (suspected sensor failures).
 
+## Notebook Structure
+
+The notebook (`Air_Quality.ipynb`) follows this exact format — every code block is introduced by a numbered markdown header:
+
+### 1. Data Cleaning
+- **1.1** Inspect the DataFrame
+- **1.2** Check for missing values
+- **1.3** Separate numerical and categorical columns
+- **1.4** Impute missing values
+- **1.5** Replace zero sensor readings
+- **1.6** Check for duplicates
+- **1.7** Convert data types
+- **1.8** Drop constant columns
+- **1.9** Detect outliers
+- **1.10** Remove outliers with the IQR method
+- **1.11** Verify outliers were removed
+
+### 2. Data Preprocessing
+- **2.1** Inspect categorical variables
+- **2.2** Split the data into train and test
+- **2.3** One-hot encode site_name (train/test separately)
+- **2.4** Feature distributions before scaling
+- **2.5** Feature scaling
+
+### 3. Exploratory Data Analysis
+- **3.0** Summary statistics
+- **3.1** Site coverage and sample size per site
+- **3.2** Strength/direction of relationships (guides feature selection)
+- **3.3** Shape of each distribution / skewness
+- **3.4** Relationship between PM2.5 and PM10
+- **3.5** Weekday vs Weekend pollution
+- **3.6** Which locations are most polluted
+- **3.7** Geographic hotspots across Nairobi (choropleth)
+- **3.8** Whether heat correlates with pollution levels
+- **3.9** Whether humidity correlates with pollution levels
+- **3.10** Seasonal patterns: PM2.5 distribution by month
+- **3.11** Air Quality Index (AQI) categorization
+- **3.12** Handling class imbalance with SMOTE
+
+### 4. Feature Engineering & Selection
+- **4.1** Datetime decomposition (+ cyclical encoding)
+- **4.2** Site encoding (label encoding)
+- **4.3** Lagged & rolling features
+- **4.4** Feature selection (correlation with target)
+
+### 5. Model Selection
+- **5.1** Data split (regression + classification targets)
+- **5.2** Feature scaling
+- **5.3** Regression models comparison
+  - 5.3.1 Linear Regression
+  - 5.3.2 Ridge Regression (+ alpha tuning)
+  - 5.3.3 Random Forest Regressor (+ hyperparameter tuning)
+  - 5.3.4 Polynomial Regression (degree 2)
+  - 5.3.5 Models summary & best model
+  - 5.3.6 Comparison chart (RMSE / MAE / R²)
+- **5.4** Classification models comparison
+  - 5.4.1 Logistic Regression (+ C tuning)
+  - 5.4.2 Random Forest Classifier (+ hyperparameter tuning)
+  - 5.4.3 Models summary & best model
+  - 5.4.4 Accuracy vs Macro-F1 (bar chart)
+  - 5.4.5 Per-class precision/recall/F1 (grouped bars)
+  - 5.4.6 ROC curves (one-vs-rest)
+- **5.5** Classification with SMOTE-balanced training
+  - 5.5.1 Class counts before vs after SMOTE (bar chart)
+
+### 6. Error Analysis (winning models only)
+- **6.1** Learning curves (train vs cross-validated score by training size)
+- **6.2** Regression diagnostics — actual vs predicted scatter, residual plot, residual distribution
+- **6.3** Classification diagnostics — confusion matrix, SMOTE vs non-SMOTE comparison
+- **6.3.1** False positives & false negatives analysis — per-class FP/FN and decision-threshold tuning to reduce them
+- **6.4** Feature importance (both winning Random Forest models)
+
+### 7. Model Explainability
+- **7.1** Permutation importance (both winning models)
+- **7.2** Partial dependence plots (top features, both winning models)
+
+### 8. Key Findings and Conclusion
+- Summary of findings and final remarks.
+
 ## Methodology
 
 ### 1. Data Cleaning & Preprocessing
