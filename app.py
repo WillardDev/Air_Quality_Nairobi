@@ -473,7 +473,7 @@ tabs = st.tabs([
     "2. Business Use Case & Impact",
     "3. Data Understanding",
     "4. Exploratory Data Analysis",
-    "5. Data Preprocessing",
+    "5. Feature Engineering and Selection",
     "6. Model Selection & Modelling",
     "7. Model Evaluation",
     "8. Error Analysis",
@@ -543,7 +543,7 @@ with tabs[0]:
     for step, desc in [
         ("🧹 Data Understanding", "cleaning, zero-exposure, imputation (§3)"),
         ("🔍 EDA", "distributions, seasonality, site variation (§4)"),
-        ("🧊 Data Preprocessing", "encoding, feature engineering, selection (§5)"),
+        ("🧊 Feature Engineering and Selection", "encoding, feature engineering, selection (§5)"),
         ("⚖️ Model Selection & Modelling", "five regression models (§6)"),
         ("📊 Model Evaluation", "RMSE/MAE/R² on held-out data (§7)"),
         ("🩺 Error Analysis", "residuals, error by PM2.5 range (§8)"),
@@ -641,10 +641,10 @@ with tabs[3]:
     render_section_viz(4)
 
 # ---------------------------------------------------------------------------
-# Tab 5 — Data Preprocessing
+# Tab 5 — Feature Engineering and Selection
 # ---------------------------------------------------------------------------
 with tabs[4]:
-    st.markdown("## 5. Data Preprocessing")
+    st.markdown("## 5. Feature Engineering and Selection")
     st.markdown(
         "Feature engineering produces **85 features** across four groups: weather & "
         "location, calendar, history, and site identity."

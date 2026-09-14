@@ -127,7 +127,7 @@ Who needs the tool, the expected impact (cost, timeliness, public health), KPIs,
 - **4.13** Handling class imbalance with SMOTE
   - 4.13.1 Visualize class balance after SMOTE
 
-### 5. Data Preprocessing
+### 5. Feature Engineering and Selection
 - **5.1** Inspect categorical variables
 - **5.2** Split the data into train and test
 - **5.3** One-hot encode site_name (train/test separately)
@@ -195,7 +195,7 @@ The app mirrors the notebook's numbered sections as tabs:
 - **2. Business Use Case & Impact** — stakeholders, expected impact, KPIs, and the deployment path.
 - **3. Data Understanding** — dataset metrics (74 sites, 16,374 rows) plus the cleaning decisions and figures.
 - **4. Exploratory Data Analysis** — key insights plus all 13 EDA figures.
-- **5. Data Preprocessing** — the 14 engineered features grouped by weather/location, calendar, and history, plus the preprocessing/feature-engineering figures.
+- **5. Feature Engineering and Selection** — the 14 engineered features grouped by weather/location, calendar, and history, plus the preprocessing/feature-engineering figures.
 - **6. Model Selection & Modelling** — regression vs classification comparison, why Random Forest won, and the comparison/tuning figures.
 - **7. Model Evaluation** — winner summary cards plus the summary, ROC, SMOTE, and confusion-matrix figures.
 - **8. Error Analysis** — learning curves, regression diagnostics, and FP/FN analysis figures.
