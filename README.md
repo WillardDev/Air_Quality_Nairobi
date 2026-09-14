@@ -89,85 +89,99 @@ data/air-quality-data-combined.csv
 
 ## Notebook Structure
 
-The notebook (`Air_Quality.ipynb`) follows this exact format — every code block is introduced by a numbered markdown header:
+The notebook (`Air_Quality.ipynb`) follows the **ML Foundations Capstone 12-section presentation format**. Every code block is introduced by a numbered markdown header, and every figure is followed by a one-line insight.
 
-### 1. Data Cleaning
-- **1.1** Inspect the DataFrame
-- **1.2** Check for missing values
-- **1.3** Separate numerical and categorical columns
-- **1.4** Impute missing values
-- **1.5** Replace zero sensor readings
-- **1.6** Check for duplicates
-- **1.7** Convert data types
-- **1.8** Drop constant columns
-- **1.9** Detect outliers
-- **1.10** Remove outliers with the IQR method
-- **1.11** Verify outliers were removed
+### 1. Problem Statement
+Coverage gaps, passive raw data, and no exposure translation — framed as a **regression** (predict µg/m³) + **classification** (Good / Moderate / Unhealthy) task.
 
-### 2. Data Preprocessing
-- **2.1** Inspect categorical variables
-- **2.2** Split the data into train and test
-- **2.3** One-hot encode site_name (train/test separately)
-- **2.4** Feature distributions before scaling
-- **2.5** Feature scaling
+### 2. Business Use Case and Impact
+Who needs the tool, the expected impact (cost, timeliness, public health), KPIs, and the deployment path to `app.py`.
 
-### 3. Exploratory Data Analysis
-- **3.0** Summary statistics
-- **3.1** Site coverage and sample size per site
-- **3.2** Strength/direction of relationships (guides feature selection)
-- **3.3** Shape of each distribution / skewness
-- **3.4** Relationship between PM2.5 and PM10
-- **3.5** Weekday vs Weekend pollution
-- **3.6** Which locations are most polluted
-- **3.7** Geographic hotspots across Nairobi (choropleth)
-- **3.8** Whether heat correlates with pollution levels
-- **3.9** Whether humidity correlates with pollution levels
-- **3.10** Seasonal patterns: PM2.5 distribution by month
-- **3.11** Air Quality Index (AQI) categorization
-- **3.12** Handling class imbalance with SMOTE
+### 3. Data Understanding
+- **3.1** Data dictionary & overview
+- **3.2** Inspect the DataFrame
+- **3.3** Check for missing values
+- **3.4** Separate numerical and categorical columns
+- **3.5** Impute missing values
+- **3.6** Replace zero sensor readings
+- **3.7** Check for duplicates
+- **3.8** Convert data types
+- **3.9** Drop constant columns
+- **3.10** Detect outliers
+- **3.11** Remove outliers with the IQR method
+- **3.12** Verify outliers were removed
 
-### 4. Feature Engineering & Selection
-- **4.1** Datetime decomposition (+ cyclical encoding)
-- **4.2** Site encoding (label encoding)
-- **4.3** Lagged & rolling features
-- **4.4** Feature selection (correlation with target)
+### 4. Exploratory Data Analysis
+- **4.1** Summary statistics
+- **4.2** Site coverage and sample size per site
+- **4.3** Strength/direction of relationships (guides feature selection)
+- **4.4** Shape of each distribution / skewness
+- **4.5** Relationship between PM2.5 and PM10
+- **4.6** Weekday vs Weekend pollution
+- **4.7** Which locations are most polluted
+- **4.8** Geographic hotspots across Nairobi (choropleth)
+- **4.9** Whether heat correlates with pollution levels
+- **4.10** Whether humidity correlates with pollution levels
+- **4.11** Seasonal patterns: PM2.5 distribution by month
+  - 4.11.1 Monthly average PM2.5 trend
+- **4.12** Air Quality Index (AQI) categorization
+  - 4.12.1 Apply categorization to the dataset
+- **4.13** Handling class imbalance with SMOTE
+  - 4.13.1 Visualize class balance after SMOTE
 
-### 5. Model Selection
-- **5.1** Data split (regression + classification targets)
-- **5.2** Feature scaling
-- **5.3** Regression models comparison
-  - 5.3.1 Linear Regression
-  - 5.3.2 Ridge Regression (+ alpha tuning)
-  - 5.3.3 Random Forest Regressor (+ hyperparameter tuning)
-  - 5.3.4 Polynomial Regression (degree 2)
-  - 5.3.5 Models summary & best model
-  - 5.3.6 Comparison chart (RMSE / MAE / R²)
-- **5.4** Classification models comparison
-  - 5.4.1 Logistic Regression (+ C tuning)
-  - 5.4.2 Random Forest Classifier (+ hyperparameter tuning)
-  - 5.4.3 Models summary & best model
-  - 5.4.4 Accuracy vs Macro-F1 (bar chart)
-  - 5.4.5 Per-class precision/recall/F1 (grouped bars)
-  - 5.4.6 ROC curves (one-vs-rest)
-- **5.5** Classification with SMOTE-balanced training
-  - 5.5.1 Class counts before vs after SMOTE (bar chart)
+### 5. Data Preprocessing
+- **5.1** Inspect categorical variables
+- **5.2** Split the data into train and test
+- **5.3** One-hot encode site_name (train/test separately)
+- **5.4** Feature distributions before scaling
+- **5.5** Feature scaling
+- **5.6** Feature engineering
+  - 5.6.1 Datetime decomposition (+ 5.6.1.1 cyclical encoding)
+  - 5.6.2 Site encoding (label encoding)
+  - 5.6.3 Lagged & rolling features
+  - 5.6.4 Feature selection
 
-### 6. Error Analysis (winning models only)
-- **6.1** Learning curves (train vs cross-validated score by training size)
-- **6.2** Regression diagnostics — actual vs predicted scatter, residual plot, residual distribution
-- **6.3** Classification diagnostics — confusion matrix, SMOTE vs non-SMOTE comparison
-- **6.3.1** False positives & false negatives analysis — per-class FP/FN and decision-threshold tuning to reduce them
-- **6.4** Feature importance (both winning Random Forest models)
+### 6. Model Selection & Modelling
+- **6.1** Data split (regression + classification targets)
+- **6.2** Feature scaling
+- **6.3** Regression models comparison
+  - 6.3.1 Linear Regression
+  - 6.3.2 Ridge Regression (+ 6.3.2.1 alpha tuning)
+  - 6.3.3 Random Forest Regressor (+ 6.3.3.1 tuning)
+  - 6.3.4 Polynomial Regression (degree 2)
+- **6.4** Classification models comparison
+  - 6.4.1 Logistic Regression (+ 6.4.1.1 C tuning)
+  - 6.4.2 Random Forest Classifier (+ 6.4.2.1 tuning)
+- **6.5** Classification with SMOTE-balanced training
 
-### 7. Model Explainability
-- **7.1** Permutation importance (both winning models)
-- **7.2** Partial dependence plots (top features, both winning models)
+### 7. Model Evaluation
+- **7.1** Regression models summary & best model
+- **7.2** Regression model comparison chart (RMSE / MAE / R²)
+- **7.3** Classification models summary & best model
+- **7.4** Accuracy vs macro-F1 (bar chart)
+- **7.5** Per-class precision/recall/F1 (grouped bars)
+- **7.6** ROC curves (one-vs-rest)
+- **7.7** Class counts before vs after SMOTE (bar chart)
+- **7.8** Confusion matrices (winning & SMOTE classifiers)
 
-### 8. Model Deployment — exporting artifacts for the Streamlit UI
-- Saves the winning models, scaler, encoders, feature list, and per-site defaults to `models/`.
+### 8. Error Analysis
+- **8.1** Learning curves (train vs cross-validated score by training size)
+- **8.2** Regression diagnostics — actual vs predicted scatter, residuals
+- **8.3** False positives & false negatives analysis — per-class FP/FN, plus decision-threshold tuning to reduce them
 
-### 9. Key Findings and Conclusion
-- Summary of findings and final remarks.
+### 9. Model Explainability
+- **9.1** Feature importance (both winning Random Forest models)
+- **9.2** Permutation importance (both winning models)
+- **9.3** Partial dependence plots (top features)
+
+### 10. Hyperparameter Tuning
+GridSearchCV approach and a summary of every tuned model: search spaces, champion parameters, and held-out metrics.
+
+### 11. Final Model & Recommendations
+Champion models, recommendations for deployment and operations, key findings, and the conclusion.
+
+### 12. Project Demonstration
+Exporting the winning models, scaler, encoders, feature list, and per-site defaults to `models/` so the Streamlit app can serve predictions.
 
 ## Streamlit UI
 
@@ -178,20 +192,23 @@ pip install -r requirements.txt     # (or: pip install streamlit plotly joblib s
 streamlit run app.py
 ```
 
-What it does — the app mirrors the notebook's numbered sections as tabs:
-- **Project Overview** — project overview, problem statement, project objectives, research questions, and the pipeline at a glance (all in one tab).
-- **1. Data Cleaning & Preprocessing** — cleaning decisions plus the cleaning/preprocessing figures.
-- **2. Exploratory Data Analysis** — key insights plus all 13 EDA figures.
-- **3. Feature Engineering & Selection** — the 14 engineered features grouped by weather/location, calendar, and history.
-- **4. Model Selection** — regression vs classification comparison, why Random Forest won, and the model-comparison/tuning figures.
-- **5. Error Analysis** — learning curves, regression diagnostics, confusion matrices, and feature importance figures.
-- **6. Model Explainability** — permutation importance and partial dependence figures.
-- **7. Deployment — Interactive Predictor** — pick a **site** and adjust **temperature, humidity, and PM10** on the page (not a sidebar). Recent 7-day readings and location come from that site's typical values; the app shows the predicted PM2.5 concentration, the predicted category with class probabilities, and a colored gauge showing where the value falls on the US-EPA breakpoints (Good ≤ 12.0, Moderate ≤ 35.4, Unhealthy > 35.4 µg/m³).
-- **8. Key Findings & Conclusion** — the main takeaways presented in the notebook.
+The app mirrors the notebook's numbered sections as tabs:
+- **1. Problem Statement** — project title, problem statement, objectives, research questions, and the pipeline at a glance.
+- **2. Business Use Case & Impact** — stakeholders, expected impact, KPIs, and the deployment path.
+- **3. Data Understanding** — dataset metrics (74 sites, 16,374 rows) plus the cleaning decisions and figures.
+- **4. Exploratory Data Analysis** — key insights plus all 13 EDA figures.
+- **5. Data Preprocessing** — the 14 engineered features grouped by weather/location, calendar, and history, plus the preprocessing/feature-engineering figures.
+- **6. Model Selection & Modelling** — regression vs classification comparison, why Random Forest won, and the comparison/tuning figures.
+- **7. Model Evaluation** — winner summary cards plus the summary, ROC, SMOTE, and confusion-matrix figures.
+- **8. Error Analysis** — learning curves, regression diagnostics, and FP/FN analysis figures.
+- **9. Model Explainability** — permutation importance and partial dependence figures.
+- **10. Hyperparameter Tuning** — a GridSearchCV summary table with the champion parameters for every tuned model.
+- **11. Final Model & Recommendations** — champion models, key findings, conclusion, and operational recommendations.
+- **12. Project Demonstration** — **interactive predictor**: pick a **site** and adjust **temperature, humidity, and PM10** on the page (not a sidebar). Recent 7-day readings and location come from that site's typical values; the app shows the predicted PM2.5 concentration, the predicted category with class probabilities, and a colored gauge showing where the value falls on the US-EPA breakpoints (Good ≤ 12.0, Moderate ≤ 35.4, Unhealthy > 35.4 µg/m³).
 
 Every figure comes with its one-line insight directly beneath it, exactly as written in the notebook.
 
-The app loads pre-trained artifacts from `models/` (generated by notebook §8). Re-run that cell after retraining to refresh the UI.
+The app loads pre-trained artifacts from `models/` (generated by notebook §12). Re-run that cell after retraining to refresh the UI.
 
 ### Model artifacts (`models/`)
 | File | Contents |
