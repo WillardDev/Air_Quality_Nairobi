@@ -114,6 +114,20 @@ site_defaults = df.groupby("_site")[
 ].median()
 site_defaults.index.name = "site_name"
 
+# §4.8 latent detail: >55% of raw latitude/longitude rows are (0,0) plus a few
+# junk points, so the per-site *median* collapses to (0,0) for most sites. Derive
+# representative coordinates from readings inside the Nairobi box (fallback: any
+# non-zero reading) and use those for demo defaults and the geographic map.
+box = df["latitude"].between(-1.6, -1.0) & df["longitude"].between(36.4, 37.3)
+rep_coords = df[box].groupby("_site")[["latitude", "longitude"]].median()
+nz = df[(df["latitude"] != 0) | (df["longitude"] != 0)]
+nz = nz[nz[["latitude", "longitude"]].notna().all(axis=1)]
+nz_rep = nz.groupby("_site")[["latitude", "longitude"]].median()
+for s in set(df["_site"].unique()) - set(rep_coords.index):
+    if s in nz_rep.index:
+        rep_coords.loc[s] = nz_rep.loc[s]
+site_defaults = site_defaults.drop(columns=["latitude", "longitude"]).join(rep_coords)
+
 # §6.1 the single train/test split
 X = df[features]
 y = df["pm2_5"]
@@ -262,11 +276,6 @@ for fname in pdp_features:
         "average": [float(v) for v in pd_res["average"][0]],
     })
 
-old_cache = os.path.join(PLOTS_DIR, "chart_data.json")
-subcounty = None
-if os.path.exists(old_cache):
-    subcounty = json.load(open(old_cache)).get("subcounty")
-
 chart_data = {
     "meta": {
         "rows_raw": rows_raw,
@@ -328,7 +337,6 @@ chart_data = {
         "std": [perm_std[f] for f in perm_series.index],
     },
     "pdp_reg": {"series": pdp_series},
-    "subcounty": subcounty,
 }
 
 with open(os.path.join(PLOTS_DIR, "chart_data.json"), "w") as f:
@@ -432,19 +440,6 @@ manifest = {
         },
         {
             "section_num": 4,
-            "order": [8, 3],
-            "file": "27b2f9d7.png",
-            "title": "4.8 Geographic hotspots across Nairobi",
-            "insight": (
-                "Mapping average PM2.5 by site and sub-county shows pollution is not "
-                "uniform across the city — the pattern generally tracks industrial "
-                "and high-traffic corridors. The single-coordinate features are weak, "
-                "so the one-hot **site** columns carry most of this spatial signal "
-                "for the model."
-            ),
-        },
-        {
-            "section_num": 4,
             "order": [9],
             "file": "2873277e.png",
             "title": "4.9 Seasonal pattern: PM2.5 by month",
@@ -453,18 +448,6 @@ manifest = {
                 "a lull around the long-rains months. Median and spread both grow in "
                 "winter, so seasonality isn't just a shift in level — high days become "
                 "both more likely and more extreme."
-            ),
-        },
-        {
-            "section_num": 4,
-            "order": [9, 1],
-            "file": "monthly_trend.png",
-            "title": "4.9.1 Monthly average PM2.5 trend",
-            "insight": (
-                "Monthly means trace a smooth season: trough in the rainy season, peak "
-                "in the dry-season months. This is why §5.2 encodes month cyclically "
-                "(sin/cos) instead of as a flat number — December and January are "
-                "seasonally adjacent, and a circular encoding reflects that."
             ),
         },
         {

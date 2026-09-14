@@ -104,6 +104,63 @@ body [data-testid="stPlotlyChart"] { width: 100% !important; }
     font-size: 0.88em;
 }
 
+/* KPI dashboard table */
+.kpi-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin: 0.8rem 0 0.4rem;
+}
+.kpi-table th {
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.55rem 0.8rem 0.45rem;
+    border-bottom: 2px solid rgba(127, 127, 127, 0.25);
+    color: var(--st-text-color, #334155);
+}
+.kpi-table td {
+    padding: 0.55rem 0.8rem 0.45rem;
+    border-bottom: 1px solid rgba(127, 127, 127, 0.12);
+    vertical-align: top;
+    color: var(--st-text-color, #334155);
+}
+.kpi-table tbody tr:nth-child(even) {
+    background: rgba(127, 127, 127, 0.05);
+}
+.kpi-table .kpi-cat {
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.7rem 0.8rem 0.3rem;
+    border-bottom: 2px solid rgba(127, 127, 127, 0.18);
+    color: #2563eb;
+    background: transparent !important;
+}
+.kpi-table .kpi-val {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.kpi-table .kpi-note {
+    font-size: 0.84rem;
+    color: #64748b;
+}
+.kpi-status {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.kpi-status.green  { background: #16a34a; }
+.kpi-status.amber  { background: #d97706; }
+.kpi-status.red    { background: #dc2626; }
+
 /* back-to-top floating button (JS toggles .show on scroll) */
 #back-to-top {
     position: fixed;
@@ -330,6 +387,25 @@ def category_gauge(pm2_5_pred):
     return fig
 
 
+def _kpi_table_html(metrics):
+    """Build the horizontal KPI table HTML from the persisted model metrics."""
+    f = metrics["final"]
+    bands = {b["band"].split(" (")[0]: b for b in metrics["error_by_band"]}
+    unh = bands["Unhealthy"]
+    cells = [
+        ("RMSE (held-out)", f"≈ {f['RMSE']:.1f} µg/m³"),
+        ("R²", f"≈ {f['R2']:.2f}"),
+        ("MAE · Unhealthy band", f"≈ {unh['mean_abs_error']:.0f} µg/m³"),
+    ]
+    heads = "".join(f"<th>{name}</th>" for name, _ in cells)
+    vals = "".join(f"<td class='kpi-val'>{val}</td>" for _, val in cells)
+    return (f"<table class='kpi-table'><thead><tr>{heads}"
+            f"<th>Positioning</th></tr></thead><tbody><tr>{vals}"
+            f"<td class='kpi-note'>A useful monitoring estimate, not a spike-alert "
+            f"guarantee — marketed for gap-filling and early advisories, not as a "
+            f"single-day spike alarm.</td></tr></tbody></table>")
+
+
 def render_section_viz(section_number):
     """Render figures with their insight directly below, in notebook order."""
     manifest = load_viz_manifest()
@@ -503,14 +579,7 @@ with tabs[1]:
         ]:
             st.markdown(f"- {item}")
     st.markdown("### KPIs")
-    for item in [
-        "RMSE ≈ **6.3 µg/m³** on held-out site-days (R² ≈ 0.66) — a useful monitoring "
-        "estimate, not a spike-alert guarantee.",
-        "Errors concentrate on rare high-pollution days (MAE ≈ 10 µg/m³ in the "
-        "Unhealthy band), so the tool is marketed for gap-filling and early "
-        "advisories, not as a single-day spike alarm.",
-    ]:
-        st.markdown(f"- {item}")
+    st.markdown(_kpi_table_html(metrics), unsafe_allow_html=True)
     st.info(
         "**Deployment path** — the winning XGBoost model is exported to `models/` and "
         "served by this Streamlit app (see tab 12)."
@@ -771,10 +840,7 @@ with tabs[8]:
 with tabs[9]:
     st.markdown("## 10. Hyperparameter Tuning")
     st.markdown(
-        "Tuning happens **only** on the single model that won §6 (XGBoost), using "
-        "**GridSearchCV (5-fold)** on the training split only. The held-out test set "
-        "is touched exactly once afterwards, to report the tuned model's honest "
-        "performance."
+        "We use **GridSearchCV (5-fold)**."
     )
     tuning_rows = [
         {"Model": "XGBoost Regressor",

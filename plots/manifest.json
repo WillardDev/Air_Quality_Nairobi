@@ -68,31 +68,11 @@
     {
       "section_num": 4,
       "order": [
-        8,
-        3
-      ],
-      "file": "27b2f9d7.png",
-      "title": "4.8 Geographic hotspots across Nairobi",
-      "insight": "Mapping average PM2.5 by site and sub-county shows pollution is not uniform across the city \u2014 the pattern generally tracks industrial and high-traffic corridors. The single-coordinate features are weak, so the one-hot **site** columns carry most of this spatial signal for the model."
-    },
-    {
-      "section_num": 4,
-      "order": [
         9
       ],
       "file": "2873277e.png",
       "title": "4.9 Seasonal pattern: PM2.5 by month",
       "insight": "There is a clear annual cycle with a **Jun\u2013Aug dry-season peak** and a lull around the long-rains months. Median and spread both grow in winter, so seasonality isn't just a shift in level \u2014 high days become both more likely and more extreme."
-    },
-    {
-      "section_num": 4,
-      "order": [
-        9,
-        1
-      ],
-      "file": "monthly_trend.png",
-      "title": "4.9.1 Monthly average PM2.5 trend",
-      "insight": "Monthly means trace a smooth season: trough in the rainy season, peak in the dry-season months. This is why \u00a75.2 encodes month cyclically (sin/cos) instead of as a flat number \u2014 December and January are seasonally adjacent, and a circular encoding reflects that."
     },
     {
       "section_num": 5,

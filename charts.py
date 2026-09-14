@@ -11,7 +11,6 @@ import json
 import os
 from functools import lru_cache
 
-import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -129,33 +128,6 @@ def _fig_2168cff4(d, top_n=None):
     return _style(fig, height=max(400, top_n * 40 + 100), xtitle="Mean PM2.5 (µg/m³)")
 
 
-def _fig_27b2f9d7(d, top_n=None):
-    sc = d.get("subcounty") or {}
-    fig = go.Figure()
-    if sc.get("geojson"):
-        z = [float("nan") if v is None else v for v in sc["pm2_5"]]
-        fig.add_trace(go.Choropleth(
-            geojson=sc["geojson"], locations=sc["adm2"], z=z,
-            featureidkey="properties.adm2_name", colorscale="YlOrRd",
-            zmin=15, zmax=35, showscale=True,
-            colorbar=dict(title="PM2.5 µg/m³", thickness=16, len=0.6, y=0.5),
-            hovertemplate="<b>%{location}</b> Sub-County<br>avg PM2.5 %{z:.1f} µg/m³<extra></extra>",
-            name="Sub-county PM2.5"))
-    e = d["eda"]
-    fig.add_trace(go.Scattergeo(
-        lat=e["latitude"], lon=e["longitude"], mode="markers", name="Sites",
-        marker=dict(size=5, color="#0f172a", line=dict(color="white", width=1)),
-        text=e["site_name"], customdata=[[v] for v in e["pm2_5"]],
-        hovertemplate="<b>%{text}</b><br>PM2.5 %{customdata[0]:.1f} µg/m³<extra></extra>"))
-    fig.update_layout(geo=dict(
-        visible=True,
-        fitbounds="locations",
-        showland=True, landcolor="#f1f5f9",
-        showcountries=True, showframe=False, coastlinecolor="#cbd5e1",
-        bgcolor="rgba(0,0,0,0)"))
-    return _style(fig, height=560, showlegend=False)
-
-
 def _fig_a2be3f89(d):
     e = d["eda"]
     fig = go.Figure()
@@ -190,25 +162,6 @@ def _fig_2873277e(d):
         fig.add_trace(_box_trace(vals, _MONTH_NAMES[m - 1], _PALETTE[(m - 1) % len(_PALETTE)]))
     fig.update_xaxes(tickangle=0)
     return _style(fig, height=520, ytitle="PM2.5 (µg/m³)")
-
-
-def _fig_monthly_trend(d):
-    e = d["eda"]
-    means, counts = [], []
-    for m in range(1, 13):
-        vals = [v for v, mm in zip(e["pm2_5"], e["month"]) if int(mm) == m]
-        means.append(float(np.mean(vals)))
-        counts.append(len(vals))
-    fig = go.Figure()
-    fig.add_trace(go.Scattergl(x=_MONTH_NAMES, y=means, mode="lines+markers+text",
-                               marker=dict(size=8, color="#b23b3b"),
-                               line=dict(color="#b23b3b", width=2.5),
-                               text=[f"{v:.1f}" for v in means], textposition="top center",
-                               textfont=dict(size=10, color="#475569"),
-                               customdata=[[c] for c in counts],
-                               hovertemplate="<b>%{x}</b> — avg %{y:.2f} µg/m³"
-                                             "<br>%{customdata[0]:,} readings<extra></extra>"))
-    return _style(fig, height=480, ytitle="Mean PM2.5 (µg/m³)")
 
 
 def _fig_corr_target(d):
@@ -315,11 +268,9 @@ _HANDLERS = {
     "3d96bbad": _fig_3d96bbad,
     "weekend_plot": _fig_weekend_plot,
     "2168cff4": _fig_2168cff4,
-    "27b2f9d7": _fig_27b2f9d7,
     "a2be3f89": _fig_a2be3f89,
     "90ec9e9f": _fig_90ec9e9f,
     "2873277e": _fig_2873277e,
-    "monthly_trend": _fig_monthly_trend,
     "corr_target": _fig_corr_target,
     "reg_viz": _fig_reg_viz,
     "reg_diag": _fig_reg_diag,
