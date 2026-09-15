@@ -21,7 +21,6 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.inspection import partial_dependence, permutation_importance
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -259,25 +258,6 @@ diag_pred, diag_actual = diag_pred.astype(float), diag_actual.astype(float)
 diag_idx = rng.choice(len(diag_actual), min(2500, len(diag_actual)), replace=False)
 diag_idx.sort()
 
-imp_series = pd.Series(final_model.feature_importances_, index=features) \
-    .sort_values(ascending=False).head(15)
-perm = permutation_importance(final_model, X_test, y_test, scoring="r2",
-                              n_repeats=5, random_state=RANDOM_STATE, n_jobs=-1)
-perm_series = pd.Series(perm.importances_mean, index=features) \
-    .sort_values(ascending=False).head(15)
-perm_std = {f: float(perm.importances_std[features.index(f)]) for f in perm_series.index}
-
-pdp_features = ["pm2_5_roll7", "pm2_5_lag1", "temperature"]
-pdp_series = []
-for fname in pdp_features:
-    pd_res = partial_dependence(final_model, X_test, [fname], kind="average",
-                                grid_resolution=40)
-    pdp_series.append({
-        "feature": fname,
-        "values": [float(v) for v in pd_res["grid_values"][0]],
-        "average": [float(v) for v in pd_res["average"][0]],
-    })
-
 # §9 SHAP: exact tree-path SHAP on the held-out set. Global = mean |SHAP| per
 # feature (bar view); local = SHAP bar for one clean / one typical / one spike
 # day, mirroring the notebook's §9 cells.
@@ -371,16 +351,6 @@ chart_data = {
         "pred": [float(v) for v in diag_pred[diag_idx]],
         "resid": [float(v) for v in (diag_actual - diag_pred)[diag_idx]],
     },
-    "feat_imp": {
-        "features": [str(f) for f in imp_series.index],
-        "values": [float(v) for v in imp_series.values],
-    },
-    "perm_imp": {
-        "features": [str(f) for f in perm_series.index],
-        "mean": [float(v) for v in perm_series.values],
-        "std": [perm_std[f] for f in perm_series.index],
-    },
-    "pdp_reg": {"series": pdp_series},
     "shap_global": shap_global,
     "shap_local": shap_local,
 }
@@ -542,52 +512,11 @@ manifest = {
         {
             "section_num": 9,
             "order": [1],
-            "file": "feat_imp.png",
-            "title": "9.1 XGBoost built-in feature importance (top 15)",
-            "insight": (
-                "Recent PM2.5 history is used most heavily by the model — `pm2_5_roll7` "
-                "and `pm2_5_lag1` dominate the split usage — followed by seasonality "
-                "(`month_cos`) and a small number of site indicators (e.g. "
-                "`site_UN Avenue Gigiri`, `site_NCC Embakasi`) that flag genuinely "
-                "different baseline locations. Note: a high site importance means "
-                "location is a strong *predictor*, not that the site 'causes' "
-                "pollution — it stands for unmeasured local factors like traffic."
-            ),
-        },
-        {
-            "section_num": 9,
-            "order": [2],
-            "file": "perm_imp.png",
-            "title": "9.2 Permutation importance (drop in R² when shuffled)",
-            "insight": (
-                "Shuffling `pm2_5_lag1` collapses held-out R² by **≈ 0.55** — more than "
-                "everything else combined. After it, the 7-day mean and the seasonal "
-                "encoding matter most; weather (temperature, humidity) contributes only "
-                "a little. Sensor **continuity is the highest-value investment**: if a "
-                "site stops reporting, the model loses its biggest lever."
-            ),
-        },
-        {
-            "section_num": 9,
-            "order": [3],
-            "file": "pdp_reg.png",
-            "title": "9.3 Partial dependence — how the model reacts to key features",
-            "insight": (
-                "The predicted PM2.5 curve rises almost one-to-one with yesterday's "
-                "reading and the 7-day mean — pollution persists. Temperature's effect "
-                "is mild and roughly negative in warm conditions. This is the *model's* "
-                "view, not an experimental claim: use it to spot where predictions "
-                "move, not to infer causation."
-            ),
-        },
-        {
-            "section_num": 9,
-            "order": [4],
             "file": "shap_global.png",
-            "title": "9.4 SHAP global importance (mean |impact|, bar)",
+            "title": "9.1 SHAP global importance (mean |impact|, bar)",
             "insight": (
-                "SHAP (TreeExplainer, exact for XGBoost) agrees with the built-in and "
-                "permutation views: the last 7 days dominate (`pm2_5_roll7` ≈ 3.5 "
+                "SHAP (TreeExplainer, exact for XGBoost) credits each feature with an "
+                "exact µg/m³ amount. The last 7 days dominate (`pm2_5_roll7` ≈ 3.5 "
                 "µg/m³ of mean |SHAP|), yesterday's reading next (`pm2_5_lag1` ≈ 2.7), "
                 "then season (`month_cos`) and weather. Unlike split-based importance, "
                 "SHAP assigns units — mean |SHAP| is the average µg/m³ each feature "
@@ -596,9 +525,9 @@ manifest = {
         },
         {
             "section_num": 9,
-            "order": [4, 1],
+            "order": [2],
             "file": "shap_local.png",
-            "title": "9.4.1 SHAP local bars — clean, typical, and spike days",
+            "title": "9.2 SHAP local bars — clean, typical, and spike days",
             "insight": (
                 "On a clean day every bar points down and the prediction lands well "
                 "below the 22.7 µg/m³ baseline. On the spike day (UN Avenue Gigiri, "

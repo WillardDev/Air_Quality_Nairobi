@@ -223,45 +223,6 @@ def _fig_reg_diag(d):
     return _style(fig, height=500, showlegend=False)
 
 
-def _fig_feat_imp(d):
-    fi = d["feat_imp"]
-    feats = fi["features"][::-1]
-    fig = go.Figure()
-    fig.add_trace(go.Bar(y=feats, x=fi["values"][::-1], orientation="h",
-                         marker_color="#2563eb",
-                         hovertemplate="<b>%{y}</b><br>importance %{x:.4f}<extra></extra>"))
-    fig.update_yaxes(categoryorder="array", categoryarray=feats)
-    return _style(fig, height=620, xtitle="XGBoost built-in importance")
-
-
-def _fig_perm_imp(d):
-    pi = d["perm_imp"]
-    feats = pi["features"][::-1]
-    means = pi["mean"][::-1]
-    stds = pi["std"][::-1]
-    fig = go.Figure(go.Bar(y=feats, x=means, orientation="h", marker_color="#7c3aed",
-                           error_x=dict(type="data", array=stds, thickness=1.2, color="#4c1d95"),
-                           customdata=[[s] for s in stds],
-                           hovertemplate="<b>%{y}</b><br>R² drop %{x:.3f} ± %{customdata[0]:.3f}<extra></extra>"))
-    fig.update_yaxes(categoryorder="array", categoryarray=feats)
-    return _style(fig, height=620, xtitle="Held-out R² drop when shuffled")
-
-
-def _fig_pdp_reg(d):
-    pdp = d["pdp_reg"]["series"]
-    fig = make_subplots(rows=1, cols=3,
-                        subplot_titles=[s["feature"] for s in pdp],
-                        horizontal_spacing=0.10)
-    for k, s in enumerate(pdp):
-        fig.add_trace(go.Scatter(x=s["values"], y=s["average"], mode="lines+markers",
-                                 name=s["feature"], line=dict(color=_PALETTE[k], width=2.5),
-                                 hovertemplate="<b>%{fullData.name}</b> = %{x:.2f}<br>predicted PM2.5 %{y:.2f}<extra></extra>"),
-                      1, k + 1)
-        fig.update_xaxes(row=1, col=k + 1, title_text=s["feature"])
-        fig.update_yaxes(row=1, col=k + 1, title_text="Average predicted PM2.5")
-    return _style(fig, height=460, showlegend=False)
-
-
 def _fig_shap_global(d):
     sg = d.get("shap_global") or []
     if not sg:
@@ -324,9 +285,6 @@ _HANDLERS = {
     "corr_target": _fig_corr_target,
     "reg_viz": _fig_reg_viz,
     "reg_diag": _fig_reg_diag,
-    "feat_imp": _fig_feat_imp,
-    "perm_imp": _fig_perm_imp,
-    "pdp_reg": _fig_pdp_reg,
     "shap_global": _fig_shap_global,
     "shap_local": _fig_shap_local,
 }
