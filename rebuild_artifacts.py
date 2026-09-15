@@ -28,6 +28,8 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
 
+import shap
+
 RANDOM_STATE = 42
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(ROOT, "models")
@@ -276,6 +278,48 @@ for fname in pdp_features:
         "average": [float(v) for v in pd_res["average"][0]],
     })
 
+# §9 SHAP: exact tree-path SHAP on the held-out set. Global = mean |SHAP| per
+# feature (bar view); local = SHAP bar for one clean / one typical / one spike
+# day, mirroring the notebook's §9 cells.
+shap_explainer = shap.TreeExplainer(final_model)
+shap_values_test = shap_explainer(X_test)
+shap_abs_mean = np.abs(shap_values_test.values).mean(axis=0)
+shap_global_series = pd.Series(shap_abs_mean, index=features) \
+    .sort_values(ascending=False).head(15)
+shap_global = [
+    {
+        "feature": f,
+        "mean_abs": float(v),
+        "signed_mean": float(shap_values_test.values[:, features.index(f)].mean()),
+    }
+    for f, v in shap_global_series.items()
+]
+
+shap_local = []
+test_meta = pd.DataFrame({"actual": y_test.to_numpy()})
+for label, mask, take in [
+    ("Cleanest day (actual ≤ 12)", test_meta["actual"] <= 12, "idxmin"),
+    ("Typical day (actual 15–25)",
+     (test_meta["actual"] >= 15) & (test_meta["actual"] <= 25), "idxmin"),
+    ("Spike day (actual > 35.4)", test_meta["actual"] > 35.4, "idxmax"),
+]:
+    sub = test_meta[mask]
+    pos = sub["actual"].idxmin() if take == "idxmin" else sub["actual"].idxmax()
+    row_idx = X_test.index[pos]
+    contrib = pd.Series(shap_values_test.values[pos], index=features) \
+        .sort_values(key=abs)
+    shap_local.append({
+        "label": label,
+        "site": str(df.loc[row_idx, "_site"]),
+        "date": str(df.loc[row_idx, "datetime"].strftime("%Y-%m-%d")),
+        "actual": round(float(test_meta.loc[pos, "actual"]), 2),
+        "predicted": round(float(
+            shap_values_test.base_values[0] + shap_values_test.values[pos].sum()), 2),
+        "base": float(shap_values_test.base_values[0]),
+        "features": [str(f) for f in contrib.head(12).index],
+        "values": [float(v) for v in contrib.head(12).values],
+    })
+
 chart_data = {
     "meta": {
         "rows_raw": rows_raw,
@@ -337,6 +381,8 @@ chart_data = {
         "std": [perm_std[f] for f in perm_series.index],
     },
     "pdp_reg": {"series": pdp_series},
+    "shap_global": shap_global,
+    "shap_local": shap_local,
 }
 
 with open(os.path.join(PLOTS_DIR, "chart_data.json"), "w") as f:
@@ -532,6 +578,34 @@ manifest = {
                 "is mild and roughly negative in warm conditions. This is the *model's* "
                 "view, not an experimental claim: use it to spot where predictions "
                 "move, not to infer causation."
+            ),
+        },
+        {
+            "section_num": 9,
+            "order": [4],
+            "file": "shap_global.png",
+            "title": "9.4 SHAP global importance (mean |impact|, bar)",
+            "insight": (
+                "SHAP (TreeExplainer, exact for XGBoost) agrees with the built-in and "
+                "permutation views: the last 7 days dominate (`pm2_5_roll7` ≈ 3.5 "
+                "µg/m³ of mean |SHAP|), yesterday's reading next (`pm2_5_lag1` ≈ 2.7), "
+                "then season (`month_cos`) and weather. Unlike split-based importance, "
+                "SHAP assigns units — mean |SHAP| is the average µg/m³ each feature "
+                "moves the prediction."
+            ),
+        },
+        {
+            "section_num": 9,
+            "order": [4, 1],
+            "file": "shap_local.png",
+            "title": "9.4.1 SHAP local bars — clean, typical, and spike days",
+            "insight": (
+                "On a clean day every bar points down and the prediction lands well "
+                "below the 22.7 µg/m³ baseline. On the spike day (UN Avenue Gigiri, "
+                "actual 118) *yesterday's PM2.5 alone contributes ≈ +52 µg/m³* — the "
+                "model rides the persistent history's most recent value. That is the "
+                "mechanism behind §8's under-prediction: when lag1 is missing, the "
+                "model has no way to know a spike is underway."
             ),
         },
     ],

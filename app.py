@@ -869,10 +869,8 @@ with tabs[9]:
         "Tuning is **flat** — held-out RMSE actually edges *up* from "
         f"{metrics['untuned']['RMSE']:.3f} to {metrics['tuned']['RMSE']:.3f} "
         "(≈ +0.07%), with MAE and R² barely moving. All three deltas sit well "
-        "inside the metric's own noise, so tuning gains nothing measurable. That is "
-        "expected: the search grid is deliberately narrow and the §6 defaults "
-        "(200 trees, depth 6, lr 0.1) already sit at its optimum, leaving no "
-        "headroom for the hyperparameters to exploit. Per §10's decision rule the "
+        "inside the metric's own noise, so tuning gains nothing measurable. "
+        "Per §10's decision rule the "
         "gain is negligible, so the simpler **untuned §6 model is kept as final** — "
         "tuning would only add complexity without improving predictions."
     )

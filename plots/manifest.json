@@ -127,6 +127,25 @@
       "file": "pdp_reg.png",
       "title": "9.3 Partial dependence \u2014 how the model reacts to key features",
       "insight": "The predicted PM2.5 curve rises almost one-to-one with yesterday's reading and the 7-day mean \u2014 pollution persists. Temperature's effect is mild and roughly negative in warm conditions. This is the *model's* view, not an experimental claim: use it to spot where predictions move, not to infer causation."
+    },
+    {
+      "section_num": 9,
+      "order": [
+        4
+      ],
+      "file": "shap_global.png",
+      "title": "9.4 SHAP global importance (mean |impact|, bar)",
+      "insight": "SHAP (TreeExplainer, exact for XGBoost) agrees with the built-in and permutation views: the last 7 days dominate (`pm2_5_roll7` \u2248 3.5 \u00b5g/m\u00b3 of mean |SHAP|), yesterday's reading next (`pm2_5_lag1` \u2248 2.7), then season (`month_cos`) and weather. Unlike split-based importance, SHAP assigns units \u2014 mean |SHAP| is the average \u00b5g/m\u00b3 each feature moves the prediction."
+    },
+    {
+      "section_num": 9,
+      "order": [
+        4,
+        1
+      ],
+      "file": "shap_local.png",
+      "title": "9.4.1 SHAP local bars \u2014 clean, typical, and spike days",
+      "insight": "On a clean day every bar points down and the prediction lands well below the 22.7 \u00b5g/m\u00b3 baseline. On the spike day (UN Avenue Gigiri, actual 118) *yesterday's PM2.5 alone contributes \u2248 +52 \u00b5g/m\u00b3* \u2014 the model rides the persistent history's most recent value. That is the mechanism behind \u00a78's under-prediction: when lag1 is missing, the model has no way to know a spike is underway."
     }
   ],
   "texts": [
@@ -165,6 +184,24 @@
       "file": null,
       "title": "4.1 Summary statistics",
       "insight": "Mean PM2.5 \u2248 22.7 \u00b5g/m\u00b3, median \u2248 20.3 \u00b5g/m\u00b3, max 136.2 \u00b5g/m\u00b3 \u2014 a city whose typical day is 'Moderate' (US-EPA) but with real spikes. Mean temperature \u2248 22.2 \u00b0C, mean humidity \u2248 65%."
+    },
+    {
+      "section_num": 4,
+      "order": [
+        5
+      ],
+      "file": null,
+      "title": "4.5 Outlier analysis \u2014 decision",
+      "insight": "IQR flags ~4% of rows including the high-PM2.5 episodes (up to 136 \u00b5g/m\u00b3). These are physically plausible pollution days, not sensor artifacts, so they are **kept**: removing them would teach the model to systematically under-predict the spikes this project cares most about."
+    },
+    {
+      "section_num": 6,
+      "order": [
+        1
+      ],
+      "file": null,
+      "title": "6.1 Split & feature count",
+      "insight": ""
     },
     {
       "section_num": 7,

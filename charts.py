@@ -262,6 +262,56 @@ def _fig_pdp_reg(d):
     return _style(fig, height=460, showlegend=False)
 
 
+def _fig_shap_global(d):
+    sg = d.get("shap_global") or []
+    if not sg:
+        return None
+    feats = [e["feature"] for e in reversed(sg)]
+    vals = [e["mean_abs"] for e in reversed(sg)]
+    signed = [e["signed_mean"] for e in reversed(sg)]
+    fig = go.Figure(go.Bar(
+        x=vals, y=feats, orientation="h",
+        marker_color=["#16a34a" if s >= 0 else "#d97706" for s in signed],
+        customdata=[[s] for s in signed],
+        text=[f"{v:.2f}" for v in vals], textposition="outside",
+        insidetextanchor="end",
+        hovertemplate="<b>%{y}</b><br>mean |SHAP| %{x:.3f} µg/m³"
+                      "<br>signed mean %{customdata[0]:+.3f} µg/m³<extra></extra>"))
+    fig.update_yaxes(categoryorder="array", categoryarray=feats)
+    return _style(fig, height=620, xtitle="mean |SHAP| (µg/m³)")
+
+
+def _fig_shap_local(d):
+    sl = d.get("shap_local") or []
+    if not sl:
+        return None
+    titles = [
+        (f"{e['label']} — {e['site']}, {e['date']}"
+         f"<br><span style='font-size:0.85em'>actual {e['actual']:.1f} → "
+         f"predicted {e['predicted']:.1f} µg/m³</span>")
+        for e in sl
+    ]
+    fig = make_subplots(rows=len(sl), cols=1, shared_xaxes=True,
+                        vertical_spacing=0.18, subplot_titles=titles)
+    for i, e in enumerate(sl):
+        feats = list(reversed(e["features"]))
+        vals = list(reversed(e["values"]))
+        fig.add_trace(go.Bar(
+            x=vals, y=feats, orientation="h", showlegend=False,
+            marker_color=["#16a34a" if v < 0 else "#dc2626" for v in vals],
+            hovertemplate="<b>%{y}</b><br>SHAP %{x:+.2f} µg/m³<extra></extra>"),
+            row=i + 1, col=1)
+        fig.add_vline(x=0, line_width=1, line_color="#94a3b8", row=i + 1, col=1)
+    fig.add_annotation(
+        x=0, y=len(sl) + 0.02, xref="paper", yref="paper", showarrow=False,
+        text=f"<span style='font-size:0.8em'>baseline E[f(x)] = "
+             f"{sl[0]['base']:.2f} µg/m³ — bars sum to prediction minus baseline "
+             f"(green = pushes prediction down, red = up)</span>")
+    fig.update_xaxes(title_text="SHAP contribution (µg/m³)", row=len(sl), col=1)
+    fig.update_annotations(font_size=12)
+    return _style(fig, height=780, showlegend=False)
+
+
 _HANDLERS = {
     "eda_site_coverage": _fig_eda_site_coverage,
     "39877be1": _fig_39877be1,
@@ -277,6 +327,8 @@ _HANDLERS = {
     "feat_imp": _fig_feat_imp,
     "perm_imp": _fig_perm_imp,
     "pdp_reg": _fig_pdp_reg,
+    "shap_global": _fig_shap_global,
+    "shap_local": _fig_shap_local,
 }
 
 
