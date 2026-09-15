@@ -601,10 +601,7 @@ manifest = {
             "file": None,
             "title": "6.1 Split & feature count",
             "insight": (
-                "One 80/20 random split (seed 42): **12,622 train / 3,156 test rows × "
-                "85 features**. No classification models are fitted — the request "
-                "scoped the project to regression (Logistic Regression, a classifier, "
-                "is explicitly out of scope)."
+                ""
             ),
         },
         {

@@ -427,7 +427,6 @@ def render_section_viz(section_number):
     merged.sort(key=lambda e: (tuple(e["order"]) if isinstance(e["order"], list) else (e["order"],),
                                e["kind"] != "figure" and 1 or 0))
     if not merged:
-        st.info("No saved figures or insights for this section.")
         return
     last_title = None
     for e in merged:

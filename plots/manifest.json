@@ -167,24 +167,6 @@
       "insight": "Mean PM2.5 \u2248 22.7 \u00b5g/m\u00b3, median \u2248 20.3 \u00b5g/m\u00b3, max 136.2 \u00b5g/m\u00b3 \u2014 a city whose typical day is 'Moderate' (US-EPA) but with real spikes. Mean temperature \u2248 22.2 \u00b0C, mean humidity \u2248 65%."
     },
     {
-      "section_num": 4,
-      "order": [
-        5
-      ],
-      "file": null,
-      "title": "4.5 Outlier analysis \u2014 decision",
-      "insight": "IQR flags ~4% of rows including the high-PM2.5 episodes (up to 136 \u00b5g/m\u00b3). These are physically plausible pollution days, not sensor artifacts, so they are **kept**: removing them would teach the model to systematically under-predict the spikes this project cares most about."
-    },
-    {
-      "section_num": 6,
-      "order": [
-        1
-      ],
-      "file": null,
-      "title": "6.1 Split & feature count",
-      "insight": "One 80/20 random split (seed 42): **12,622 train / 3,156 test rows \u00d7 85 features**. No classification models are fitted \u2014 the request scoped the project to regression (Logistic Regression, a classifier, is explicitly out of scope)."
-    },
-    {
       "section_num": 7,
       "order": [
         1
