@@ -199,7 +199,7 @@ The app mirrors the notebook's numbered sections as tabs:
 - **6. Model Selection & Modelling** — regression vs classification comparison, why Random Forest won, and the comparison/tuning figures.
 - **7. Model Evaluation** — winner summary cards plus the summary, ROC, SMOTE, and confusion-matrix figures.
 - **8. Error Analysis** — learning curves, regression diagnostics, and FP/FN analysis figures.
-- **9. Model Explainability** — permutation importance and partial dependence figures.
+- **9. Model Explainability** — SHAP global and local bar charts (§9).
 - **10. Hyperparameter Tuning** — a GridSearchCV summary table with the champion parameters for every tuned model.
 - **11. Final Model & Recommendations** — champion models, key findings, conclusion, and operational recommendations.
 - **12. Project Demonstration** — **interactive predictor**: pick a **site** and adjust **temperature, humidity, and PM10** on the page (not a sidebar). Recent 7-day readings and location come from that site's typical values; the app shows the predicted PM2.5 concentration, the predicted category with class probabilities, and a colored gauge showing where the value falls on the US-EPA breakpoints (Good ≤ 12.0, Moderate ≤ 35.4, Unhealthy > 35.4 µg/m³).
@@ -251,4 +251,4 @@ Analyze residuals by time and site to identify systematic under-prediction of po
 
 ### 8. Model Explainability
 
-Use SHAP and partial dependence plots to rank feature importance, show how site identity and time of year drive predictions, and provide actionable insight.
+Use SHAP (global bar + local bar) to show how each feature moves the prediction in µg/m³ — highlighting the role of recent PM2.5 history, seasonality, and site identity.

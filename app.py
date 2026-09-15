@@ -546,7 +546,7 @@ with tabs[0]:
         ("⚖️ Model Selection & Modelling", "five regression models (§6)"),
         ("📊 Model Evaluation", "RMSE/MAE/R² on held-out data (§7)"),
         ("🩺 Error Analysis", "residuals, error by PM2.5 range (§8)"),
-        ("💡 Explainability", "importance, permutation, partial dependence (§9)"),
+        ("💡 Explainability", "SHAP global + local bar charts (§9)"),
         ("🚀 Project Demonstration", "interactive Streamlit predictor (§12)"),
     ]:
         st.markdown(f"**{step}** — {desc}")
@@ -821,15 +821,16 @@ with tabs[7]:
 with tabs[8]:
     st.markdown("## 9. Model Explainability")
     st.markdown(
-        "Two lenses on why the model makes its predictions: built-in feature "
-        "importances (split usage) and **permutation importance** (the actual "
-        "predictive value — how much held-out R² drops when each feature is "
-        "shuffled), plus partial-dependence curves for the key features."
+        "Why does the winning model make the predictions it does? **SHAP** credits "
+        "each feature with an exact amount — in **µg/m³** — by which its value moves "
+        "the prediction away from a baseline. We show the global picture (mean |SHAP| "
+        "per feature) and per-feature bars for one clean / one typical / one spike "
+        "held-out day."
     )
     st.markdown(
-        "**Caveat:** importance measures *association*, not causation. A high-ranking "
-        "site indicator means location is a strong predictor — it stands in for "
-        "unmeasured local factors like traffic density."
+        "**Note:** SHAP values are model-specific (exact for XGBoost's tree paths) and "
+        "credit each feature fairly — but they still describe *association*, not "
+        "causation."
     )
     render_section_viz(9)
 
@@ -899,7 +900,7 @@ with tabs[10]:
             "Treat the model as a **monitoring aid, not a spike alarm** — high days "
             "are its weakest point (§8).",
             "Protect sensor continuity: `pm2_5_lag1` is the single most valuable "
-            "feature (permutation importance §9).",
+            "feature (SHAP §9).",
             "For the future: add traffic, wind, and land-use data; retrain quarterly; "
             "use a **chronological** split to test true forecasting.",
         ]:
